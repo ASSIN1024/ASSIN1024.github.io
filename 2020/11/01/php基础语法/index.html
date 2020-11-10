@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="google-site-verification" content="TZE0rZyIqLl10trYu3BWBWa1Vmz6HFwhb2OcNEK4u-s" />
+     <link rel="shortcut icon" href= /img/favicon.ico >
+    <title>
+        Hexo
+    </title>
+    <meta name="description" content= 嘿，我是刘训灼～这是我的子站，用于展示写的Hexo主题：Coder。欢迎访问！ >
+    <meta name="keywords" content= Blog,Hexo,Theme,刘训灼,LiuXunzhuo >
+    
+<link rel="stylesheet" href="/libs/highlight/styles/monokai-sublime.css">
+
+    
+<link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+
+    
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+<body id="bodyx">
+    <div class="hd posts">
+    <a href="/index.html"><i class="fa fa-home
+ replay-btn" aria-hidden="true"></i></a>
+    <div class="post-title">
+        <p>
+            php基础语法
+        </p>
+        <hr>
+    </div>
+    <div class="post-content">
+        <h2 id="一、PHP入门"><a href="#一、PHP入门" class="headerlink" title="一、PHP入门"></a>一、PHP入门</h2><h3 id="1、指令分隔符”分号”"><a href="#1、指令分隔符”分号”" class="headerlink" title="1、指令分隔符”分号”"></a>1、指令分隔符”分号”</h3><p>​                            语义分为两种：一种是在程序中使用结构定义语句。在结构语句后面不能使用分号作为                    结束。</p>
+<p>​                            另一种是在程序中使用功能执行语句。</p>
+<h3 id="2、程序注释"><a href="#2、程序注释" class="headerlink" title="2、程序注释"></a>2、程序注释</h3><p>​                            php注释的三种形式：</p>
+<p>​                            以“/<em>”和“</em>/”闭合多行注释符，</p>
+<p>​                            “//”和”#”开始的单行注释符</p>
+<h2 id="二、变量"><a href="#二、变量" class="headerlink" title="二、变量"></a>二、变量</h2><p>​                第一次赋值，就创建了变量。必须使用”$”后跟变量名表示。再次给该变量赋值会覆盖之前的            变量。</p>
+<p>​                 php变量声明以后有一定的范围，变量的范围即它定义的上下文背景(也就是它生效范围)。大            部分的php变量如果不是在函数里面声明的，只有在声明处到文件结束的一个单独范围内使            用。</p>
+<h4 id="1、变量的命名"><a href="#1、变量的命名" class="headerlink" title="1、变量的命名"></a>1、变量的命名</h4><p>​                变量名区分大小写。但内置结构和关键字以及用户自定义的类名和函数名都是不区分大小写            的。</p>
+<p>​                <img src="https://images2015.cnblogs.com/blog/712855/201601/712855-20160119161020468-1536530589.png" alt="img"></p>
+<h4 id="2、可变变量"><a href="#2、可变变量" class="headerlink" title="2、可变变量"></a>2、可变变量</h4><p>​            可变变量可使用一个普通变量的值作为这个可变变量的变量名。</p>
+<h4 id="3、变量的引用赋值"><a href="#3、变量的引用赋值" class="headerlink" title="3、变量的引用赋值"></a>3、变量的引用赋值</h4><p>​            变量总是传值赋值。也就是说，当将一个表达式的值赋予一个变量时，整个原始表达式的值被        赋值到目标变量。改变其中一个变量的值，将不会影响到另一个变量。</p>
+<h4 id="4、变量的类型"><a href="#4、变量的类型" class="headerlink" title="4、变量的类型"></a>4、变量的类型</h4><p>​            4种标量类型：boolean(布尔型)、integer(整型)、float(浮点型)、string(字符串)</p>
+<p>​            2种复合类型：array(数组)、object(对象)</p>
+<p>​            2种特殊类型：resource(资源)、NULL</p>
+<p>​            <strong>对象（object）</strong></p>
+<p>​            -&gt;：表示对象属性、方法的引用</p>
+<h5 id="伪类型"><a href="#伪类型" class="headerlink" title="伪类型"></a>伪类型</h5><p>​            <strong>伪类型</strong></p>
+<p>**        mixed：**说明一个参数可以接受多种不同的(但并不必须是所有的)类型。例如getype()可以接            受所有的php类型，str_replace()可以接受字符串和数组。</p>
+<p>**        number：**说明一个参数可以是integer或者float。</p>
+<p>**        callback：**有些诸如call_user_function()或usort()的函数接受用户自定义的函数作为一个参            数。callback函数不仅可以是一个简单的函数，他还可以是一个对象的方法，包括静态类的方            法。一个php函数用函数名字符串来传递。</p>
+<h3 id="三、常量"><a href="#三、常量" class="headerlink" title="三、常量"></a>三、常量</h3><p>​            常量的定义    </p>
+<p>​            define(string name，mixed value[,bool case_insensitive]);`</p>
+<p>​        第一个参数为常量名，第二个参数为常量的值或表达式，第三个参数是可选的，如果把        case_insensitive设为true，则常数将会定义成不区分大小写。如果只想检测是否定义了某常量，用defined()函数。</p>
+<h4 id="循环语句"><a href="#循环语句" class="headerlink" title="循环语句"></a>循环语句</h4><p>​            break</p>
+<p>​    在循环语句中中断循环语句，也就是结束循环语句的执行。</p>
+<p>​    break语句可以将深埋在嵌套循环中的语句退出指定层数或直接退出最外层，break是接受一个可选的数字参数来决定跳出几重语句。break可以跳出几重循环语句或是几重switch语句。</p>
+<h5 id="continue"><a href="#continue" class="headerlink" title="continue"></a>continue</h5><p>​    continue 语句只能使用在循环语句内部，功能是跳过该次循环，继续执行下一次循环结构。在while和do-while语句中continue语句跳转到循环条件处开始继续执行，对于for循环随后的动作是变量更新。.</p>
+<p>​    接受一个可选数字参数来决定条出多重语句。</p>
+<p>​    在循环中遇到continue语句后，就不会执行该循环中位于是continue后的任何语句。</p>
+<p>​    continue语句用于结束循环，继续下一次循环。</p>
+<h5 id="exit"><a href="#exit" class="headerlink" title="exit"></a>exit</h5><p>​    当前脚本只要执行到exit语句，而不管它在那个结构中都会直接退出当前脚本。exit()是一个函数，die(）函数就是exit()函数的别名，可以带有一个参数输出一条信息，并退出当前脚本。</p>
+
+    </div>
+
+    
+        <hr class="fhr">
+        <div id="vcomments"></div>
+    
+</div>
+    <div class="footer" id="footer">
+    <p><h4>版权所有 © 2020 | 作者: ASSIN | 主题 By <a class="theme-author" target="_blank" rel="noopener" href="https://github.com/Xunzhuo/hexo-theme-coder" style="font-size:14px; color: #969696">Coder</a></h4>
+    
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+        <span id="busuanzi_container_site_pv">本站浏览总访问量: <span id="busuanzi_value_site_pv"></span></span>
+        <span class="post-meta-divider">|</span>
+        <span id="busuanzi_container_site_uv">本站访问人数: <span id="busuanzi_value_site_uv"></span></span>
+    
+    <label class="el-switch el-switch-blue el-switch-sm" style="vertical-align: sub;">
+        <input type="checkbox" name="switch" id="update_style">
+        <span class="el-switch-style"></span>
+    </label>
+
+    <!--         <script type="text/javascript">
+    var cnzz_protocol = (("https:" == document.location.protocol) ? "https://" : "http://");
+    document.write(unescape("%3Cspan id='cnzz_stat_icon_1278548644'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "v1.cnzz.com/stat.php%3Fid%3D1278548644%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));
+    </script> -->
+</p>
+</div>
+
+<input type="hidden" id="web_style" value="black">
+<input type="hidden" id="valine_appid" value="NOsswOncKgc8HOxqo9oxIWlX-gzGzoHsz">
+<input type="hidden" id="valine_appKey" value="z1FihjWEbS8uIfUQdmCtK7zz">
+
+<script src="/libs/jquery.min.js"></script>
+
+
+<script src="/libs/highlight/highlight.pack.js"></script>
+
+<script src='//cdn.jsdelivr.net/npm/valine@1.3.10/dist/Valine.min.js'></script>
+
+<script src="/js/js.js"></script>
+
+<style type="text/css">
+.v * {
+color: #698fca;
+}
+.v .vlist .vcard .vhead .vsys {
+color: #3a3e4a;
+}
+.v .vlist .vcard .vh .vmeta .vat {
+color: #638fd5;
+}
+.v .vlist .vcard .vhead .vnick {
+color: #6ba1ff;
+}
+.v a {
+color: #8696b1;
+}
+.v .vlist .vcard .vhead .vnick:hover {
+color: #669bfc;
+}
+</style>
+    <script type="text/javascript" color="173,174,173" opacity='1' zIndex="-2" count="99" src="//cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="google-site-verification" content="TZE0rZyIqLl10trYu3BWBWa1Vmz6HFwhb2OcNEK4u-s" />
+     <link rel="shortcut icon" href= /img/favicon.ico >
+    <title>
+        Hexo
+    </title>
+    <meta name="description" content= 嘿，我是刘训灼～这是我的子站，用于展示写的Hexo主题：Coder。欢迎访问！ >
+    <meta name="keywords" content= Blog,Hexo,Theme,刘训灼,LiuXunzhuo >
+    
+<link rel="stylesheet" href="/libs/highlight/styles/monokai-sublime.css">
+
+    
+<link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+
+    
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+<body id="bodyx">
+    <div class="hd posts">
+    <a href="/index.html"><i class="fa fa-home
+ replay-btn" aria-hidden="true"></i></a>
+    <div class="post-title">
+        <p>
+            MySQL基础
+        </p>
+        <hr>
+    </div>
+    <div class="post-content">
+        <h2 id="数据库相关概念"><a href="#数据库相关概念" class="headerlink" title="数据库相关概念"></a>数据库相关概念</h2><p>​            1、DB：数据库，保存一组有组织的数据的容器；</p>
+<p>​            2、DBMS：数据库管理系统，又称为数据库软件（产品）</p>
+<p>​            3、SQL：数据化查询语言，用于和DBMS通信的语言</p>
+<p>​    </p>
+<h3 id="MySQL的常见命令"><a href="#MySQL的常见命令" class="headerlink" title="MySQL的常见命令"></a>MySQL的常见命令</h3><h4 id="1、查看当前所有的数据库"><a href="#1、查看当前所有的数据库" class="headerlink" title="1、查看当前所有的数据库"></a>1、查看当前所有的数据库</h4><p>​                show databases;</p>
+<h4 id="2、打开指定的库"><a href="#2、打开指定的库" class="headerlink" title="2、打开指定的库"></a>2、打开指定的库</h4><p>​                use 库名；</p>
+<h4 id="3、查看当前库的所有表"><a href="#3、查看当前库的所有表" class="headerlink" title="3、查看当前库的所有表"></a>3、查看当前库的所有表</h4><p>​                show tables;</p>
+<h4 id="4、查看其它库的所有表"><a href="#4、查看其它库的所有表" class="headerlink" title="4、查看其它库的所有表"></a>4、查看其它库的所有表</h4><p>​                show tables from 库名；</p>
+<h4 id="5、创建表"><a href="#5、创建表" class="headerlink" title="5、创建表"></a>5、创建表</h4><p>​                create table 表名(</p>
+<p>​                        列名 列类型,</p>
+<p>​                        列民 列类型，</p>
+<p>​                )</p>
+<h4 id="6、查看表结构"><a href="#6、查看表结构" class="headerlink" title="6、查看表结构"></a>6、查看表结构</h4><p>​                desc 表名;</p>
+<h4 id="7、查看服务器的版本"><a href="#7、查看服务器的版本" class="headerlink" title="7、查看服务器的版本"></a>7、查看服务器的版本</h4><p>​                方式一：登陆到mysql服务端</p>
+<p>​                select version（）；</p>
+<p>​                方式二：没有登陆到mysql服务端</p>
+<p>​                mysql –version</p>
+<p>​                或</p>
+<p>​                mysql –V</p>
+<h3 id="MySQL的语法规范"><a href="#MySQL的语法规范" class="headerlink" title="MySQL的语法规范"></a>MySQL的语法规范</h3><p>​                1、不区分大小写，但是建议关键字大小写，表名、列名小写</p>
+<p>​                2、每条命令用分号结尾</p>
+<p>​                3、每条命令根据需要，可以进行缩进或换行</p>
+<p>​                4、注释</p>
+<p>​                            单行注释：#注释文字</p>
+<p>​                            单行注释：–  注释文字（注意– 后要空格）</p>
+<p>​                            多行注释：/*  注释文字   */</p>
+<h3 id="查询操作"><a href="#查询操作" class="headerlink" title="查询操作"></a>查询操作</h3><h4 id="1：基础查询"><a href="#1：基础查询" class="headerlink" title="#1：基础查询"></a>#1：基础查询</h4><p>语法：<br>select 查询列表 from 表名;</p>
+<p>类似于：System.out.println(打印东西);</p>
+<p>特点：</p>
+<p>1、查询列表可以是：表中的字段、常量值、表达式、函数<br>2、查询的结果是一个虚拟的表格</p>
+<h5 id="1-查询表中的单个字段"><a href="#1-查询表中的单个字段" class="headerlink" title="#1.查询表中的单个字段"></a>#1.查询表中的单个字段</h5><p>SELECT last_name FROM employees;</p>
+<h5 id="2-查询表中的多个字段"><a href="#2-查询表中的多个字段" class="headerlink" title="#2.查询表中的多个字段"></a>#2.查询表中的多个字段</h5><p>SELECT last_name,salary,email FROM employees;</p>
+<h5 id="3-查询表中的所有字段"><a href="#3-查询表中的所有字段" class="headerlink" title="#3.查询表中的所有字段"></a>#3.查询表中的所有字段</h5><p>#方式一：<br>SELECT<br>    <code>employee_id</code>,<br>    <code>first_name</code>,<br>    <code>last_name</code>,<br>    <code>phone_number</code>,<br>  ………<br>FROM<br>    employees ;<br>#方式二：<br> SELECT * FROM employees;</p>
+<h5 id="4-查询常量值"><a href="#4-查询常量值" class="headerlink" title="#4.查询常量值"></a>#4.查询常量值</h5><p> SELECT 100;<br> SELECT ‘john’;</p>
+<h5 id="5-查询表达式"><a href="#5-查询表达式" class="headerlink" title="#5.查询表达式"></a>#5.查询表达式</h5><p> SELECT 100%98;</p>
+<h5 id="6-查询函数"><a href="#6-查询函数" class="headerlink" title="#6.查询函数"></a>#6.查询函数</h5><p> SELECT VERSION();</p>
+<h5 id="7-起别名"><a href="#7-起别名" class="headerlink" title="#7.起别名"></a>#7.起别名</h5><p> /*<br> ①便于理解<br> ②如果要查询的字段有重名的情况，使用别名可以区分开来</p>
+<p> */<br> #方式一：使用as<br>SELECT 100%98 AS 结果;<br>SELECT last_name AS 姓,first_name AS 名 FROM employees;</p>
+<p>#方式二：使用空格<br>SELECT last_name 姓,first_name 名 FROM employees;</p>
+<p>#案例：查询salary，显示结果为 out put<br>SELECT salary AS “out put” FROM employees;</p>
+<h5 id="8-去重"><a href="#8-去重" class="headerlink" title="#8.去重"></a>#8.去重</h5><p>#案例：查询员工表中涉及到的所有的部门编号<br>SELECT DISTINCT department_id FROM employees;</p>
+<h5 id="9-号的作用"><a href="#9-号的作用" class="headerlink" title="#9.+号的作用"></a>#9.+号的作用</h5><p>/*</p>
+<p>java中的+号：<br>①运算符，两个操作数都为数值型<br>②连接符，只要有一个操作数为字符串</p>
+<p>mysql中的+号：<br>仅仅只有一个功能：运算符</p>
+<p>select 100+90; 两个操作数都为数值型，则做加法运算<br>select ‘123’+90;只要其中一方为字符型，试图将字符型数值转换成数值型<br>            如果转换成功，则继续做加法运算<br>select ‘john’+90;    如果转换失败，则将字符型数值转换成0</p>
+<p>select null+10; 只要其中一方为null，则结果肯定为null</p>
+<p>*/</p>
+<p>#案例：查询员工名和姓连接成一个字段，并显示为 姓名</p>
+<p>SELECT CONCAT(‘a’,’b’,’c’) AS 结果;</p>
+<p>SELECT<br>    CONCAT(last_name,first_name) AS 姓名<br>FROM<br>    employees;</p>
+<h4 id="进阶2：条件查询"><a href="#进阶2：条件查询" class="headerlink" title="#进阶2：条件查询"></a>#进阶2：条件查询</h4><p>/*</p>
+<p>语法：<br>    select<br>        查询列表<br>    from<br>        表名<br>    where<br>        筛选条件;</p>
+<p>分类：<br>    一、按条件表达式筛选</p>
+<pre><code>简单条件运算符：&gt; &lt; = != &lt;&gt; &gt;= &lt;=
+
+二、按逻辑表达式筛选
+逻辑运算符：
+作用：用于连接条件表达式
+    &amp;&amp; || !
+    and or not
+
+&amp;&amp;和and：两个条件都为true，结果为true，反之为false
+||或or： 只要有一个条件为true，结果为true，反之为false
+!或not： 如果连接的条件本身为false，结果为true，反之为false
+
+三、模糊查询
+    like
+    between and
+    in
+    is null</code></pre>
+<p>*/</p>
+<h5 id="一、按条件表达式筛选"><a href="#一、按条件表达式筛选" class="headerlink" title="#一、按条件表达式筛选"></a>#一、按条件表达式筛选</h5><p>#案例1：查询工资&gt;12000的员工信息</p>
+<p>SELECT<br>    *<br>FROM<br>    employees<br>WHERE<br>    salary&gt;12000;</p>
+<p>#案例2：查询部门编号不等于90号的员工名和部门编号<br>SELECT<br>    last_name,<br>    department_id<br>FROM<br>    employees<br>WHERE<br>    department_id&lt;&gt;90;</p>
+<h5 id="二、按逻辑表达式筛选"><a href="#二、按逻辑表达式筛选" class="headerlink" title="#二、按逻辑表达式筛选"></a>#二、按逻辑表达式筛选</h5><p>#案例1：查询工资z在10000到20000之间的员工名、工资以及奖金<br>SELECT<br>    last_name,<br>    salary,<br>    commission_pct<br>FROM<br>    employees<br>WHERE<br>    salary&gt;=10000 AND salary&lt;=20000;<br>#案例2：查询部门编号不是在90到110之间，或者工资高于15000的员工信息<br>SELECT<br>    *<br>FROM<br>    employees<br>WHERE<br>    NOT(department_id&gt;=90 AND  department_id&lt;=110) OR salary&gt;15000;</p>
+<h5 id="三、模糊查询"><a href="#三、模糊查询" class="headerlink" title="#三、模糊查询"></a>#三、模糊查询</h5><p>/*<br>like</p>
+<p>between and<br>in<br>is null|is not null</p>
+<p>*/</p>
+<h6 id="1-like"><a href="#1-like" class="headerlink" title="#1.like"></a>#1.like</h6><p>/*<br>特点：<br>①一般和通配符搭配使用<br>    通配符：<br>    % 任意多个字符,包含0个字符<br>    _ 任意单个字符<br>*、</p>
+<p>#案例1：查询员工名中包含字符a的员工信息</p>
+<p>select<br>    *<br>from<br>    employees<br>where<br>    last_name like ‘%a%’;#abc<br>#案例2：查询员工名中第三个字符为e，第五个字符为a的员工名和工资<br>select<br>    last_name,<br>    salary<br>FROM<br>    employees<br>WHERE<br>    last_name LIKE ‘__n_l%’;</p>
+<p>#案例3：查询员工名中第二个字符为_的员工名</p>
+<p>SELECT<br>    last_name<br>FROM<br>    employees<br>WHERE<br>    last_name LIKE ‘<em>$</em>%’ ESCAPE ‘$’;</p>
+<h6 id="2-between-and"><a href="#2-between-and" class="headerlink" title="#2.between and"></a>#2.between and</h6><p>/*<br>①使用between and 可以提高语句的简洁度<br>②包含临界值<br>③两个临界值不要调换顺序</p>
+<p>*/</p>
+<p>#案例1：查询员工编号在100到120之间的员工信息</p>
+<p>SELECT<br>    *<br>FROM<br>    employees<br>WHERE<br>    employee_id &gt;= 120 AND employee_id&lt;=100;<br>#———————-<br>SELECT<br>    *<br>FROM<br>    employees<br>WHERE<br>    employee_id BETWEEN 120 AND 100;</p>
+<h6 id="3-in"><a href="#3-in" class="headerlink" title="#3.in"></a>#3.in</h6><p>/*<br>含义：判断某字段的值是否属于in列表中的某一项<br>特点：<br>    ①使用in提高语句简洁度<br>    ②in列表的值类型必须一致或兼容<br>    ③in列表中不支持通配符</p>
+<p>*/<br>#案例：查询员工的工种编号是 IT_PROG、AD_VP、AD_PRES中的一个员工名和工种编号</p>
+<p>SELECT<br>    last_name,<br>    job_id<br>FROM<br>    employees<br>WHERE<br>    job_id = ‘IT_PROT’ OR job_id = ‘AD_VP’ OR JOB_ID =’AD_PRES’;</p>
+<p>#——————</p>
+<p>SELECT<br>    last_name,<br>    job_id<br>FROM<br>    employees<br>WHERE<br>    job_id IN( ‘IT_PROT’ ,’AD_VP’,’AD_PRES’);</p>
+<h6 id="4、is-null"><a href="#4、is-null" class="headerlink" title="#4、is null"></a>#4、is null</h6><p>/*<br>=或&lt;&gt;不能用于判断null值<br>is null或is not null 可以判断null值</p>
+<p>*/</p>
+<p>#案例1：查询没有奖金的员工名和奖金率<br>SELECT<br>    last_name,<br>    commission_pct<br>FROM<br>    employees<br>WHERE<br>    commission_pct IS NULL;</p>
+<p>#案例1：查询有奖金的员工名和奖金率<br>SELECT<br>    last_name,<br>    commission_pct<br>FROM<br>    employees<br>WHERE<br>    commission_pct IS NOT NULL;</p>
+<p>#———-以下为×<br>SELECT<br>    last_name,<br>    commission_pct<br>FROM<br>    employees</p>
+<p>WHERE<br>    salary IS 12000;</p>
+<p>#安全等于  &lt;=&gt;</p>
+<p>#案例1：查询没有奖金的员工名和奖金率<br>SELECT<br>    last_name,<br>    commission_pct<br>FROM<br>    employees<br>WHERE<br>    commission_pct &lt;=&gt;NULL;</p>
+<p>#案例2：查询工资为12000的员工信息<br>SELECT<br>    last_name,<br>    salary<br>FROM<br>    employees</p>
+<p>WHERE<br>    salary &lt;=&gt; 12000;</p>
+<p>#is null pk &lt;=&gt;</p>
+<p>IS NULL:仅仅可以判断NULL值，可读性较高，建议使用</p>
+<p>&lt;=&gt;    :既可以判断NULL值，又可以判断普通的数值，可读性较低</p>
+<h2 id="删除操作"><a href="#删除操作" class="headerlink" title="删除操作"></a>删除操作</h2><p>基本语法：delete from 表名 [where 条件]; </p>
+<p>1、<strong>删除部分数据</strong></p>
+<p>即删除指定的部分数据，需要使用WHERE子句来指定删除记录的条件。</p>
+<p>2、<strong>删除全部数据</strong></p>
+<p>如果没有where条件，意味着系统会自动删除该表所有数据（慎用）</p>
+<h2 id="插入操作"><a href="#插入操作" class="headerlink" title="插入操作"></a>插入操作</h2><p>本质含义，将数据以SQL的形式存储到指定的数据表（字段）<br>1、<strong>INSERT语句中指定所有</strong></p>
+<p>语法:</p>
+<p>Insert into 表名 [(字段列表)] </p>
+<p>values（值1，值2）;</p>
+<p>2、<strong>INSERT语句中不指定字段名</strong></p>
+<p>诺不指定字段名，则添加的值应和字段在表中的顺序完全一致。</p>
+<p>语法：</p>
+<p>INSERT INTO 表名</p>
+<p>values（值1，值2）;</p>
+<p>3、<strong>为表的指定字段添加数据</strong></p>
+<p>INSERT INTO 表名 (字段1，字段2)</p>
+<p>values（值1，值2）;</p>
+<p>4、<strong>INSERT语句的其他写法</strong></p>
+<p>INSERT INTO 表名</p>
+<p>SET 字段名1=值1[,字段名2=值2，…]</p>
+<p>5、<strong>同时添加多条数据</strong></p>
+<p>INSERT INTO 表名[(字段名1，字段名2，…)]</p>
+<p>VALUES （值1，值2，…），（值1，值2，…），</p>
+<p>　　　…</p>
+<p>　　　（值1，值2，…）</p>
+<h2 id="更新操作"><a href="#更新操作" class="headerlink" title="更新操作"></a>更新操作</h2><p>更新：将数据进行修改<br>基本语法： updata 表名 </p>
+<p>​                    SET 字段名1=值1，[ ，字段名2=值2，…]</p>
+<p>​                   [where 条件]；</p>
+<p>//如果没有表中对应的那个字段都会被修改成统一值</p>
+<p>1、<strong>UPDATE 更新部分数据</strong></p>
+<p>指更新指定表中的指定记录，使用WHERE 子句来指定</p>
+<p>2、<strong>UPDATE 更新全部数据</strong></p>
+<p> 在UPDATE 语句中若不使用WHERE 子句，则会将表中所有记录的指定字段都进行更新。</p>
+
+    </div>
+
+    
+        <hr class="fhr">
+        <div id="vcomments"></div>
+    
+</div>
+    <div class="footer" id="footer">
+    <p><h4>版权所有 © 2020 | 作者: ASSIN | 主题 By <a class="theme-author" target="_blank" rel="noopener" href="https://github.com/Xunzhuo/hexo-theme-coder" style="font-size:14px; color: #969696">Coder</a></h4>
+    
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+        <span id="busuanzi_container_site_pv">本站浏览总访问量: <span id="busuanzi_value_site_pv"></span></span>
+        <span class="post-meta-divider">|</span>
+        <span id="busuanzi_container_site_uv">本站访问人数: <span id="busuanzi_value_site_uv"></span></span>
+    
+    <label class="el-switch el-switch-blue el-switch-sm" style="vertical-align: sub;">
+        <input type="checkbox" name="switch" id="update_style">
+        <span class="el-switch-style"></span>
+    </label>
+
+    <!--         <script type="text/javascript">
+    var cnzz_protocol = (("https:" == document.location.protocol) ? "https://" : "http://");
+    document.write(unescape("%3Cspan id='cnzz_stat_icon_1278548644'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "v1.cnzz.com/stat.php%3Fid%3D1278548644%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));
+    </script> -->
+</p>
+</div>
+
+<input type="hidden" id="web_style" value="black">
+<input type="hidden" id="valine_appid" value="NOsswOncKgc8HOxqo9oxIWlX-gzGzoHsz">
+<input type="hidden" id="valine_appKey" value="z1FihjWEbS8uIfUQdmCtK7zz">
+
+<script src="/libs/jquery.min.js"></script>
+
+
+<script src="/libs/highlight/highlight.pack.js"></script>
+
+<script src='//cdn.jsdelivr.net/npm/valine@1.3.10/dist/Valine.min.js'></script>
+
+<script src="/js/js.js"></script>
+
+<style type="text/css">
+.v * {
+color: #698fca;
+}
+.v .vlist .vcard .vhead .vsys {
+color: #3a3e4a;
+}
+.v .vlist .vcard .vh .vmeta .vat {
+color: #638fd5;
+}
+.v .vlist .vcard .vhead .vnick {
+color: #6ba1ff;
+}
+.v a {
+color: #8696b1;
+}
+.v .vlist .vcard .vhead .vnick:hover {
+color: #669bfc;
+}
+</style>
+    <script type="text/javascript" color="173,174,173" opacity='1' zIndex="-2" count="99" src="//cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js"></script>
+</body>
+</html>
